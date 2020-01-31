@@ -6,6 +6,6 @@ applications:
   buildpack: sdk-for-nodejs
   command: npm start
   disk_quota: 1G
-  memory: 64MB
+  memory: 128MB
   domain: mybluemix.net
   host: nccloud-messaging
