@@ -2,7 +2,13 @@
 # Push app
 if ! cf app "$CF_APP"; then
   cf push "$CF_APP" --no-start
-  cf set-env "$CF_APP" APP_SECRET TEST
+  cf set-env "$CF_APP" APP_SECRET "$APP_SECRET"
+  cf set-env "$CF_APP" MONGO_USER "$MONGO_USER"
+  cf set-env "$CF_APP" MONGO_PASSWORD "$MONGO_PASSWORD"
+  cf set-env "$CF_APP" MONGO_URL "$MONGO_URL"
+  cf set-env "$CF_APP" MONGO_DB "$MONGO_DB"
+  cf set-env "$CF_APP" LOGS_QUEUE_TOPIC "$LOGS_QUEUE_TOPIC"
+  cf set-env "$CF_APP" RECEIPTS_QUEUE_TOPIC "$RECEIPTS_QUEUE_TOPIC"
   cf start "$CF_APP"
 else
   OLD_CF_APP="${CF_APP}-OLD-$(date +"%s")"
@@ -19,7 +25,13 @@ else
   trap rollback ERR
   cf rename "$CF_APP" "$OLD_CF_APP"
   cf push "$CF_APP" --no-start
-  cf set-env "$CF_APP" APP_SECRET TEST
+  cf set-env "$CF_APP" APP_SECRET "$APP_SECRET"
+  cf set-env "$CF_APP" MONGO_USER "$MONGO_USER"
+  cf set-env "$CF_APP" MONGO_PASSWORD "$MONGO_PASSWORD"
+  cf set-env "$CF_APP" MONGO_URL "$MONGO_URL"
+  cf set-env "$CF_APP" MONGO_DB "$MONGO_DB"
+  cf set-env "$CF_APP" LOGS_QUEUE_TOPIC "$LOGS_QUEUE_TOPIC"
+  cf set-env "$CF_APP" RECEIPTS_QUEUE_TOPIC "$RECEIPTS_QUEUE_TOPIC"
   cf start "$CF_APP"
   cf delete "$OLD_CF_APP" -f
 fi
