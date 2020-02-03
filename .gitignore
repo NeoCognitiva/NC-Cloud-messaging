@@ -59,7 +59,7 @@ typings/
 .env
 
 # Bluemix deploy manifest
-manifest.yml
+root/manifests/manifest.yml
 
 #Crawler Temporal file
 client/assets/TMP.csv
