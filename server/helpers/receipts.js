@@ -6,10 +6,13 @@
 	 * */
 	const createError = require("http-errors");
 	const RECEIPTS_COLLECTION_NAME = "receipts";
+	const RECEIPTS_QUEUE_TOPIC = process.env.RECEIPTS_QUEUE_TOPIC;
+	const {listenQueueTopic, ackQueueMessage} = require("./queueConsumer");
+
 	const Receipt = require("../model/Receipt");
 
-	module.exports = function (mongoDB) {
-		if (!mongoDB) {
+	module.exports = function (mongoDB, logger) {
+		if (!mongoDB || !logger) {
 			throw new Error("Can not instantiate adminUser helper without mongoDB object")
 		}
 		return {
@@ -47,12 +50,12 @@
 			 * @async
 			 * @return {Promise}
 			 */
-			"generateReceipt": function (client, service, workspaceId) {
+			"generateReceipt": function (timestamp, client, service, workspaceId) {
 				return new Promise((resolve, reject) => {
 					mongoDB.insertOne(RECEIPTS_COLLECTION_NAME,
-						new Receipt({client, service, workspaceId})
-					).then(() => {
-						resolve()
+						new Receipt({timestamp, client, service, workspaceId})
+					).then((status) => {
+						resolve(status)
 					}).catch(err => {
 						reject(err);
 					});
@@ -152,8 +155,27 @@
 					});
 				});
 			},
+			"queueController": null,
+
+			async handleReceiptArrival(message = {}) {
+				let parsedMessage = JSON.parse((message.content).toString());
+				let receiptId = await this.generateReceipt(
+					parsedMessage.timestamp,
+					parsedMessage.client,
+					parsedMessage.service,
+					parsedMessage.workspaceId
+				);
+				ackQueueMessage(message);
+				logger.info(`Receipt ID: ${receiptId} generated and message acknowledged`);
+			},
 
 
+			async initQueueListener() {
+				this.queueController = await listenQueueTopic(
+					RECEIPTS_QUEUE_TOPIC,
+					this.handleReceiptArrival.bind(this)
+				);
+			}
 		}
 	};
 
