@@ -9,6 +9,8 @@ if ! cf app "$CF_APP"; then
   cf set-env "$CF_APP" MONGO_DB "$MONGO_DB"
   cf set-env "$CF_APP" LOGS_QUEUE_TOPIC "$LOGS_QUEUE_TOPIC"
   cf set-env "$CF_APP" RECEIPTS_QUEUE_TOPIC "$RECEIPTS_QUEUE_TOPIC"
+  cf set-env "$CF_APP" RABBITMQ_APP_ID "$RABBITMQ_APP_ID"
+  cf set-env "$CF_APP" RABBITMQ_URL "$RABBITMQ_URL"
   cf start "$CF_APP"
 else
   OLD_CF_APP="${CF_APP}-OLD-$(date +"%s")"
@@ -32,6 +34,8 @@ else
   cf set-env "$CF_APP" MONGO_DB "$MONGO_DB"
   cf set-env "$CF_APP" LOGS_QUEUE_TOPIC "$LOGS_QUEUE_TOPIC"
   cf set-env "$CF_APP" RECEIPTS_QUEUE_TOPIC "$RECEIPTS_QUEUE_TOPIC"
+  cf set-env "$CF_APP" RABBITMQ_APP_ID "$RABBITMQ_APP_ID"
+  cf set-env "$CF_APP" RABBITMQ_URL "$RABBITMQ_URL"
   cf start "$CF_APP"
   cf delete "$OLD_CF_APP" -f
 fi
@@ -39,4 +43,4 @@ fi
 export CF_APP_NAME="$CF_APP"
 export APP_URL=http://$(cf app $CF_APP_NAME | grep -e urls: -e routes: | awk '{print $2}')
 # View logs
-#cf logs "${CF_APP}" --recent
+cf logs "${CF_APP}" --recent
