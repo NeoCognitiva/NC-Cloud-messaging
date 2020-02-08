@@ -9,6 +9,8 @@
 	const createError = require("http-errors");
 	const fs = require("fs");
 	const LOGS_COLLECTION =	"logs";
+	const LOGS_QUEUE_TOPIC = process.env.LOGS_QUEUE_TOPIC;
+
 	const mongoDB = require("./mongo");
 	const Log = require("../model/Log");
 	const errorLogger = new winston.Logger({
@@ -29,6 +31,8 @@
 			new (winston.transports.Console)()
 		]
 	});
+	const {listenQueueTopic, ackQueueMessage} = require("./queueConsumer");
+
 
 	module.exports = {
 		/**
@@ -187,6 +191,25 @@
 				}).then(logsCount => resolve(logsCount || 0)
 				).catch(err => reject(err));
 			});
+		},
+
+		"queueController": null,
+
+		async handleLogArrival(message = {}) {
+			let parsedMessage = JSON.parse((message.content).toString());
+			let logId = await this.log(
+				parsedMessage
+			);
+			ackQueueMessage(message);
+			this.info(`Log ID: ${logId} generated and message acknowledged`);
+		},
+
+
+		async initQueueListener() {
+			this.queueController = await listenQueueTopic(
+				LOGS_QUEUE_TOPIC,
+				this.handleLogArrival.bind(this)
+			);
 		}
 	};
 
