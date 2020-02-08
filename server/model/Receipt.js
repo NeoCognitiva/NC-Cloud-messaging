@@ -17,7 +17,7 @@
 		if (!params.client || !params.service) {
 			throw new Error("Invalid params to build the Receipt object");
 		}
-		this.timestamp = params.timestamp;
+		this.timestamp = new Date(params.timestamp);
 		this.processedAt = new Date();
 		this.client = params.client;
 		this.service = params.service;
