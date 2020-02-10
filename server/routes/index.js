@@ -8,9 +8,11 @@
 
 	module.exports = function (app) {
 
-		app.get("/",
-			(req, res) => res.send("oi")
-		);
+
+		app.get("/", (req, res) => {
+			res.status(200).render("./index.html");
+		});
+
 
 		app.get("/api-docs.json", function(req, res) {
 			res.setHeader("Content-Type", "application/json");
