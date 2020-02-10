@@ -11,10 +11,6 @@
 	const appPort = process.env.APP_PORT || process.env.PORT || process.env.VCAP_APP_PORT || 6070;
 	const express = require("express");
 	const helmet = require("helmet");
-	const mongoDB = require("./server/helpers/mongo");
-	const queueConsumer = require("./server/helpers/queueConsumer");
-	const logger = process.logger = require("./server/helpers/logger");
-	const receipts = require("./server/helpers/receipts")(mongoDB, logger);
 	const fs = require("fs");
 	const app = express();
 
@@ -37,6 +33,12 @@
 	const compress = require("compression");
 	const engines = require("consolidate");
 	const morgan = require("morgan");
+	const WebSocket = require("ws");
+	const wss = new WebSocket.Server({server});
+	const mongoDB = require("./server/helpers/mongo");
+	const queueConsumer = require("./server/helpers/queueConsumer")(wss);
+	const logger = process.logger = require("./server/helpers/logger")(mongoDB, queueConsumer);
+	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
 
 
 	app.use(helmet());
