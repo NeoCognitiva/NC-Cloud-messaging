@@ -107,7 +107,7 @@
 			id="nc-app-receipt-report-list"
 			class="nc-app-content-section">
 			<header class="nc-app-content-section-header">
-				<h4 class="nc-app-content-section-header-title">Waiting for logs</h4>
+				<h4 class="nc-app-content-section-header-title">Waiting for receipts</h4>
 			</header>
 			<ul class="nc-app-content-section-list">
 			</ul>
@@ -116,7 +116,7 @@
 			id="nc-app-log-report-list"
 			class="nc-app-content-section">
 			<header class="nc-app-content-section-header">
-				<h4 class="nc-app-content-section-header-title">Waiting for receipts</h4>
+				<h4 class="nc-app-content-section-header-title">Waiting for logs</h4>
 			</header>
 			<ul class="nc-app-content-section-list">
 			</ul>
@@ -264,10 +264,12 @@
 					};
 
 					vars.webSocket.onmessage = (ev = {}) => {
+						console.log("WebSocket event");
+						console.log(ev);
 						let queueMessage = JSON.parse(ev.data || {});
 						if (queueMessage.type === "receipt") {
 							this.injectQueueStatusInfo({
-								"onlineSince": data.onlineSince,
+								"onlineSince": new Date(data.onlineSince),
 								"messagesByTopic": {
 									"receipt": data.queueStatus.messagesByTopic.receipt += 1,
 									"log": data.queueStatus.messagesByTopic.log
@@ -275,7 +277,7 @@
 							});
 						} else {
 							this.injectQueueStatusInfo({
-								"onlineSince": data.onlineSince,
+								"onlineSince": new Date(data.onlineSince),
 								"messagesByTopic": {
 									"receipt": data.queueStatus.messagesByTopic.receipt,
 									"log": data.queueStatus.messagesByTopic.log += 1
@@ -295,7 +297,7 @@
 								vars.webSocketConnectionRetrialInterval,
 								"seconds"
 							].join(" "));
-
+							console.time(new Date().toLocaleString());
 							window.setTimeout(this.initWebSocket.bind(this), 3000);
 							vars.webSocketConnectionRetrialCount += 1;
 
@@ -311,8 +313,6 @@
 					this.initWebSocket(),
 					factory.get("/queueStatus")
 				]);
-
-				console.log(queueStatus);
 
 				this.injectQueueStatusInfo(queueStatus);
 
