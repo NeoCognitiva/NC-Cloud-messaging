@@ -76,3 +76,5 @@ package-lock.json
 /root/certificates/local/localhost-privkey.pem
 /root/certificates/local/localhost-cert.pem
 .npmrc
+
+manifest.yml
