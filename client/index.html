@@ -246,8 +246,9 @@
 				return this;
 			},
 			"injectQueueStatusInfo": function(queueStatus = {}, skipDate = false) {
-				data.queueStatus = queueStatus;
-				if (skipDate) {
+				data.queueStatus = queueStatus
+
+				if (!skipDate) {
 					elements.onlineSinceInfo.innerText = new Date(queueStatus.onlineSince).toLocaleString();
 				}
 
