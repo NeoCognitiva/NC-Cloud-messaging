@@ -245,9 +245,12 @@
 
 				return this;
 			},
-			"injectQueueStatusInfo": function(queueStatus = {}) {
+			"injectQueueStatusInfo": function(queueStatus = {}, skipDate = false) {
 				data.queueStatus = queueStatus;
-				elements.onlineSinceInfo.innerText = new Date(queueStatus.onlineSince).toLocaleString();
+				if (skipDate) {
+					elements.onlineSinceInfo.innerText = new Date(queueStatus.onlineSince).toLocaleString();
+				}
+
 				elements.receiptsProcessedInfo.innerText = queueStatus.messagesByTopic.receipt;
 				elements.logsProcessedInfo.innerText = queueStatus.messagesByTopic.log;
 				return this;
@@ -269,20 +272,22 @@
 						let queueMessage = JSON.parse(ev.data || {});
 						if (queueMessage.type === "receipt") {
 							this.injectQueueStatusInfo({
-								"onlineSince": new Date(data.onlineSince),
 								"messagesByTopic": {
 									"receipt": data.queueStatus.messagesByTopic.receipt += 1,
 									"log": data.queueStatus.messagesByTopic.log
-								}
-							});
+								},
+							},
+								true
+							);
 						} else {
 							this.injectQueueStatusInfo({
-								"onlineSince": new Date(data.onlineSince),
 								"messagesByTopic": {
 									"receipt": data.queueStatus.messagesByTopic.receipt,
 									"log": data.queueStatus.messagesByTopic.log += 1
 								}
-							});
+							},
+								true
+							);
 						}
 
 						methods.injectListItem(queueMessage);
