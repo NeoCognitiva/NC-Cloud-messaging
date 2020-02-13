@@ -86,7 +86,7 @@
 				receipts.initQueueListener(),
 				logger.initQueueListener()
 			]);
-			require("./server/routes/index")(app);
+			require("./server/routes/index")(app, queueConsumer);
 
 			logger.info("MongoDB and RabbitMQ connected successfully");
 			logger.info(`API server running at port ${appPort}`);

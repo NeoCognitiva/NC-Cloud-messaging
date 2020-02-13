@@ -9,7 +9,10 @@
 	let amqpConn = null;
 	let amqpChannel = null;
 	let onlineSince = null;
-	let messagesByTopic = {};
+	let messagesByTopic = {
+		"receipt": 0,
+		"log": 0
+	};
 
 	module.exports = function (ws) {
 		return {
@@ -32,9 +35,12 @@
 					return amqpConn;
 				}
 			},
+
 			getQueueStatus() {
+				console.log(messagesByTopic);
 				return {onlineSince, messagesByTopic};
 			},
+
 			async listenQueueTopic(topic, cb, options = {}) {
 				return amqpChannel.addSetup(channel => {
 					return channel.consume(
@@ -46,6 +52,7 @@
 			},
 
 			async ackQueueMessage(message, referenceObject = {}) {
+				let parsedData = JSON.parse(referenceObject);
 				await amqpChannel.ack(message);
 				ws.clients.forEach(client => {
 					if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -53,11 +60,11 @@
 					}
 				});
 
-				if (referenceObject.type) {
-					if (messagesByTopic[referenceObject.type] >= 0) {
-						messagesByTopic[referenceObject.type] += 1;
+				if (parsedData.type) {
+					if (messagesByTopic[parsedData.type] >= 0) {
+						messagesByTopic[parsedData.type] += 1;
 					} else {
-						messagesByTopic[referenceObject.type] = 1;
+						messagesByTopic[parsedData.type] = 1;
 					}
 				}
 
