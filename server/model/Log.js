@@ -20,7 +20,8 @@
 		this.action = params.action;
 		this.type = params.type;
 		this.operator = params.operator;
-		this.timestamp = new Date();
+		this.timestamp = new Date(params.timestamp);
+		this.generatedAt = new Date();
 		this.details = params.details || {};
 	}
 }());

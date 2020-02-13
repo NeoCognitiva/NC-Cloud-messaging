@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#4A8FCC">
+	<title>NeoCognitiva Queue status</title>
+	<style>
+		@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,600");
+		html, body {width: 100%; height: 100%; padding: 0; margin: 0; overflow: hidden; max-width: 100%; max-height: 100%;}
+		#nc-app {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			font-family: 'Open Sans', sans-serif;
+		}
+
+		.nc-app-header {
+			width: 100%;
+			height: 48px;
+			background-color: #1f1f1f;
+			padding: 0 8px;
+			display: flex;
+			align-items: center;
+		}
+		.nc-app-header-title {
+			color: white;
+			margin: 0;
+		}
+
+		.nc-app-status {
+			padding: 0 10px;
+		}
+		.nc-app-status-row {
+		}
+		.nc-app-status-row > h4 > span:first-child{
+		}
+
+		.nc-app-status-row > h4 > span:last-child{
+			font-weight: 300;
+			margin-left: 4px;
+		}
+
+		.nc-app-content {
+			width: 100%;
+			padding: 48px;
+			flex: 1;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(352px, 420px));;
+			justify-content: center;
+			grid-gap: 48px;
+			box-sizing: border-box;
+			background-color: #f1f1f1;
+
+		}
+		.nc-app-content-section {
+			min-width: 352px;
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			background-color: #ffffff;
+		}
+		.nc-app-content-section-header {
+			padding: 16px;
+			animation: blink ease 1.3s infinite alternate;
+		}
+		.nc-app-content-section-header-title {
+			margin: 0;
+		}
+		.nc-app-content-section-list {
+			width: 100%;
+		}
+		.nc-app-content-section-list-item {
+			width: 100%;
+		}
+
+		@keyframes blink {
+			0% {
+				opacity: 1;
+			}
+			100% {
+				opacity: 0.1;
+			}
+
+		}
+	</style>
+</head>
+<body>
+<div id="nc-app">
+	<header class="nc-app-header">
+		<h2 class="nc-app-header-title">NC Cloud queue system</h2>
+	</header>
+	<article class="nc-app-status">
+		<section class="nc-app-status-row">
+			<h4><span>Queue online since:</span><span id="online-since">Loading</span></h4>
+		</section>
+		<section class="nc-app-status-row">
+			<h4><span>Receipts processed:</span><span id="receipts-processed-info">Loading</span></h4>
+		</section>
+		<section class="nc-app-status-row">
+			<h4><span>Logs processed:</span><span id="logs-processed-info">Loading</span></h4>
+		</section>
+	</article>
+	<article class="nc-app-content">
+		<section
+			id="nc-app-receipt-report-list"
+			class="nc-app-content-section">
+			<header class="nc-app-content-section-header">
+				<h4 class="nc-app-content-section-header-title">Waiting for logs</h4>
+			</header>
+			<ul class="nc-app-content-section-list">
+			</ul>
+		</section>
+		<section
+			id="nc-app-log-report-list"
+			class="nc-app-content-section">
+			<header class="nc-app-content-section-header">
+				<h4 class="nc-app-content-section-header-title">Waiting for receipts</h4>
+			</header>
+			<ul class="nc-app-content-section-list">
+			</ul>
+		</section>
+	</article>
+	<footer></footer>
+</div>
+
+
+<script>
+	(function () {
+		"use strict";
+
+		let vars = {
+			"webSocket": null,
+			"webSocketConnectionRetrialCount": 0,
+			"webSocketConnectionRetrialInterval": 5,
+			"webSocketMaxRetrialAttempt": 5,
+			"retrialStatus": true
+		};
+
+		let data = {
+			"receipts": [],
+			"logs": [],
+			"queueStatus": {
+				"onlineSince": "",
+				"messagesByTopic": {"receipt": 0, "log": 0}
+			}
+		};
+
+		let factory = {
+			"init": function(resolve, reject, rawResponse) {
+				let xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function () {
+					if (xhttp.readyState === 4) {
+						if (xhttp.status === 200 || xhttp.status === 201) {
+							if (xhttp.responseText || xhttp.response === "") {
+								try {
+									resolve(JSON.parse(xhttp.responseText));
+								} catch (e) {
+									resolve(xhttp.responseText);
+								}
+							} else {
+								reject("Empty response");
+							}
+
+						} else {
+							reject(rawResponse ? xhttp : xhttp.responseText);
+						}
+					}
+				};
+				return xhttp;
+			},
+			"get": function (url, opts) {
+				return new Promise((resolve, reject) => {
+					if (window.XMLHttpRequest) {
+						let xhttp = factory.init(resolve, reject);
+						xhttp.open("GET", url);
+						if (opts && opts.contentType) {
+							xhttp.setRequestHeader("content-type", opts.contentType);
+						} else {
+							xhttp.setRequestHeader("content-type", "application/json");
+						}
+						xhttp.send();
+					} else {
+						reject("AJAX Calls not supported on this browser");
+					}
+				});
+			},
+			"post": function (url, requestParams = {}, opts = {}) {
+				return new Promise((resolve, reject) => {
+					if (window.XMLHttpRequest) {
+						let xhttp = this.init(resolve, reject);
+						xhttp.open("POST", url);
+						if (opts && opts.contentType ){
+							if (opts.contentType !== "multipart/form-data") {
+								xhttp.setRequestHeader("content-type", opts.contentType);
+							}
+							xhttp.send(requestParams);
+						} else {
+							xhttp.setRequestHeader("content-type", "application/json");
+							xhttp.send(JSON.stringify(requestParams));
+						}
+
+					} else {
+						reject("AJAX Calls not supported on this browser");
+					}
+				});
+			},
+		};
+
+		let elements = {
+			"onlineSinceInfo": document.getElementById("online-since"),
+			"receiptsProcessedInfo": document.getElementById("receipts-processed-info"),
+			"logsProcessedInfo": document.getElementById("logs-processed-info"),
+			"receiptReportList": document.querySelector("#nc-app-receipt-report-list > .nc-app-content-section-list"),
+			"logReportList": document.querySelector("#nc-app-log-report-list > .nc-app-content-section-list")
+		};
+
+		let methods = {
+			"injectListItem": function (item = {}) {
+				if (!item.type || !item.documentId) {
+					throw new Error("Invalid item");
+				}
+
+				let fragment = document.createDocumentFragment();
+				let listItem = document.createElement("li");
+				let itemIdLabel = document.createElement("span");
+
+				listItem.setAttribute("data-id", item.documentId);
+				listItem.setAttribute("data-type", item.type);
+				listItem.setAttribute("class", "nc-app-content-section-list-item");
+				itemIdLabel.setAttribute("class", "nc-app-content-section-list-label");
+				itemIdLabel.innerText = item.documentId;
+
+				listItem.appendChild(itemIdLabel);
+				fragment.appendChild(listItem);
+
+				if (item.type === "receipt") {
+					elements.receiptReportList.appendChild(fragment);
+					data.receipts.push(item);
+				} else {
+					elements.logReportList.appendChild(fragment);
+					data.logs.push(item);
+				}
+
+				return this;
+			},
+			"injectQueueStatusInfo": function(queueStatus = {}) {
+				data.queueStatus = queueStatus;
+				elements.onlineSinceInfo.innerText = new Date(queueStatus.onlineSince).toLocaleString();
+				elements.receiptsProcessedInfo.innerText = queueStatus.messagesByTopic.receipt;
+				elements.logsProcessedInfo.innerText = queueStatus.messagesByTopic.log;
+				return this;
+			},
+			"initWebSocket": function () {
+				return new Promise((resolve, reject) => {
+					vars.webSocket = null;
+					vars.webSocket = new WebSocket(`wss://${location.host}`);
+					vars.webSocket.onopen = (ev) => {
+						console.log(`WebSocket connected at ${ev.target.url}`);
+						vars.webSocketConnectionRetrialCount = 0;
+						window.clearInterval(methods.initWebSocket);
+						resolve(true);
+					};
+
+					vars.webSocket.onmessage = (ev = {}) => {
+						let queueMessage = JSON.parse(ev.data || {});
+						if (queueMessage.type === "receipt") {
+							this.injectQueueStatusInfo({
+								"onlineSince": data.onlineSince,
+								"messagesByTopic": {
+									"receipt": data.queueStatus.messagesByTopic.receipt += 1,
+									"log": data.queueStatus.messagesByTopic.log
+								}
+							});
+						} else {
+							this.injectQueueStatusInfo({
+								"onlineSince": data.onlineSince,
+								"messagesByTopic": {
+									"receipt": data.queueStatus.messagesByTopic.receipt,
+									"log": data.queueStatus.messagesByTopic.log += 1
+								}
+							});
+						}
+
+						methods.injectListItem(queueMessage);
+					};
+
+					vars.webSocket.onclose = () => {
+						if (vars.webSocketConnectionRetrialCount <= vars.webSocketMaxRetrialAttempt) {
+							console.log([
+								"WebSocket connection lost, it will retry for",
+								vars.webSocketMaxRetrialAttempt - vars.webSocketConnectionRetrialCount,
+								"times every",
+								vars.webSocketConnectionRetrialInterval,
+								"seconds"
+							].join(" "));
+
+							window.setTimeout(this.initWebSocket.bind(this), 3000);
+							vars.webSocketConnectionRetrialCount += 1;
+
+						} else {
+							console.log("Connection lost, try refreshing the page");
+							reject(false);
+						}
+					}
+				});
+			},
+			"initApp": async function() {
+				let [socketStatus, queueStatus] = await Promise.all([
+					this.initWebSocket(),
+					factory.get("/queueStatus")
+				]);
+
+				console.log(queueStatus);
+
+				this.injectQueueStatusInfo(queueStatus);
+
+			}
+		};
+
+		window.onload = methods.initApp();
+
+	}());
+</script>
+</body>
+</html>
