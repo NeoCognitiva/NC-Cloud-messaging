@@ -52,7 +52,7 @@
 				}
 
 				if (conversation.context && conversation.context.shouldAskFeedback) {
-					updateDoc.$inc.feedbackRequestsCount = 1;
+					updateDoc.$inc.feedbackRequestCount = 1;
 				}
 
 				return await mongoDB.updateOneAtomic(CONVERSATION_ANALYTICS_COLLECTION,
