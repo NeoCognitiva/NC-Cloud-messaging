@@ -39,6 +39,7 @@
 	const queueConsumer = require("./server/helpers/queueConsumer")(wss);
 	const logger = process.logger = require("./server/helpers/logger")(mongoDB, queueConsumer);
 	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
+	const conversationAnalytics = require("./server/helpers/conversationAnalytics")(mongoDB, logger, queueConsumer);
 
 
 	app.use(helmet());
@@ -83,6 +84,7 @@
 				queueConsumer.connect()
 			]);
 			await Promise.all([
+				conversationAnalytics.initQueueListener(),
 				receipts.initQueueListener(),
 				logger.initQueueListener()
 			]);
