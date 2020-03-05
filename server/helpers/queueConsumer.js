@@ -31,13 +31,16 @@
 						}
 					});
 
-					onlineSince = new Date();
+					amqpConn.on("connect", () => {
+						console.log("MQ channel connected");
+						onlineSince = new Date();
+					});
+
 					return amqpConn;
 				}
 			},
 
 			getQueueStatus() {
-				console.log(messagesByTopic);
 				return {onlineSince, messagesByTopic};
 			},
 
@@ -51,14 +54,18 @@
 				});
 			},
 
-			async ackQueueMessage(message, referenceObject = {}) {
+			async ackQueueMessage(message, referenceObject = null) {
 				let parsedData = JSON.parse(referenceObject);
 				await amqpChannel.ack(message);
-				ws.clients.forEach(client => {
-					if (client !== ws && client.readyState === WebSocket.OPEN) {
-						client.send(referenceObject);
-					}
-				});
+
+				if (referenceObject) {
+					ws.clients.forEach(client => {
+						if (client !== ws && client.readyState === WebSocket.OPEN) {
+							client.send(referenceObject);
+						}
+					});
+				}
+
 
 				if (parsedData.type) {
 					if (messagesByTopic[parsedData.type] >= 0) {
