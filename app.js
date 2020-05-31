@@ -40,6 +40,7 @@
 	const logger = process.logger = require("./server/helpers/logger")(mongoDB, queueConsumer);
 	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
 	const conversationAnalytics = require("./server/helpers/conversationAnalytics")(mongoDB, logger, queueConsumer);
+	const tasker = require("./server/tasker");
 
 
 	app.use(helmet());
@@ -88,10 +89,12 @@
 				receipts.initQueueListener(),
 				logger.initQueueListener()
 			]);
+			tasker.init();
 			require("./server/routes/index")(app, queueConsumer);
-
 			logger.info("MongoDB and RabbitMQ connected successfully");
 			logger.info(`API server running at port ${appPort}`);
+			logger.info("Automation to handle customer alerts will run every day at 01:00 AM America/Sao_Paulo");
+
 		} catch (err) {
 			logger.info({
 				"message": "An error occurred initiating a required core service, check the details below:"
