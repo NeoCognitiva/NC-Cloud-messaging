@@ -20,17 +20,20 @@
 					"json",
 					200
 				);
+				let requestBody = {
+					"event_type": "CONVERSION",
+					"event_family": "CDP",
+					"conversion_identifier": conversionIdentifier,
+					...stationData
+				};
 
-				return await post(
-					RD_STATION_ENDPOINT,
-					{
-						"event_type": "CONVERSION",
-						"event_family": "CDP",
-						"conversion_identifier": conversionIdentifier,
-						...stationData
-					}
-				);
-
+				// let x = await post(
+				// 	RD_STATION_ENDPOINT,
+				// 	requestBody
+				// );
+				// console.log(x)
+				console.log(requestBody)
+				return requestBody
 			},
 
 			async handleEmailArrival(message = {}) {

@@ -38,8 +38,10 @@
 	const mongoDB = require("./server/helpers/mongo");
 	const queueConsumer = require("./server/helpers/queueConsumer")(wss);
 	const logger = process.logger = require("./server/helpers/logger")(mongoDB, queueConsumer);
+	const mailer = process.logger = require("./server/helpers/mailer")(mongoDB, queueConsumer);
 	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
 	const conversationAnalytics = require("./server/helpers/conversationAnalytics")(mongoDB, logger, queueConsumer);
+	const accountChecker = require("./server/helpers/accountChecker")(mongoDB, mailer);
 	const tasker = require("./server/tasker");
 
 
@@ -87,9 +89,29 @@
 			await Promise.all([
 				conversationAnalytics.initQueueListener(),
 				receipts.initQueueListener(),
-				logger.initQueueListener()
+				logger.initQueueListener(),
+				mailer.initQueueListener()
 			]);
-			tasker.init();
+			tasker.init(
+				[{
+					"expression": "* * * * *",
+					"handler": async () => {
+						let results = await Promise.all([
+							accountChecker.lowInteractionQuota(),
+							accountChecker.accountInactivity(),
+							accountChecker.subscriptionPeriodCloseToEndFirstWarning(),
+							accountChecker.subscriptionPeriodCloseToEndLastWarning(),
+							accountChecker.subscriptionEnded()
+						]);
+						console.log(results);
+						return results;
+					},
+					"options": {
+						"scheduled": true,
+						"timezone": "America/Sao_Paulo"
+					}
+				}]
+			);
 			require("./server/routes/index")(app, queueConsumer);
 			logger.info("MongoDB and RabbitMQ connected successfully");
 			logger.info(`API server running at port ${appPort}`);
