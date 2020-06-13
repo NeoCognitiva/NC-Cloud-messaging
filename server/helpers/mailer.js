@@ -15,6 +15,9 @@
 			"queueController": null,
 
 			async postStationData(conversionIdentifier, stationData = {}) {
+				if (process.env.TEST_ENV || process.env.NODE_ENV === "test") {
+					return stationData;
+				}
 				const post = bent(
 					"POST",
 					"json",

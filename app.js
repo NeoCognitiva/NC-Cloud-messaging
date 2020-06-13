@@ -13,7 +13,8 @@
 	const helmet = require("helmet");
 	const fs = require("fs");
 	const app = express();
-
+	const path = require("path");
+	const LOGS_DUMP_FILE_PATH = path.join("root", "mail_logs", "dump.log");
 	let server;
 	if (process.env.LOCAL_HTTPS) {
 		server = require("https").createServer({
@@ -93,24 +94,44 @@
 				mailer.initQueueListener()
 			]);
 			tasker.init(
-				[{
-					"expression": "* * * * *",
-					"handler": async () => {
-						let results = await Promise.all([
-							accountChecker.lowInteractionQuota(),
-							accountChecker.accountInactivity(),
-							accountChecker.subscriptionPeriodCloseToEndFirstWarning(),
-							accountChecker.subscriptionPeriodCloseToEndLastWarning(),
-							accountChecker.subscriptionEnded()
-						]);
-						console.log(results);
-						return results;
-					},
-					"options": {
-						"scheduled": true,
-						"timezone": "America/Sao_Paulo"
+				[
+					{
+						"expression": accountChecker.cronScheduleString,
+						"handler": async () => {
+							let writeStream = fs.createWriteStream(
+								LOGS_DUMP_FILE_PATH,
+								{"flags": "a"}
+							);
+							let starTime = new Date();
+
+							let results = await Promise.all([
+								accountChecker.lowInteractionQuota(),
+								accountChecker.accountInactivity(),
+								accountChecker.subscriptionPeriodCloseToEndFirstWarning(),
+								accountChecker.subscriptionPeriodCloseToEndLastWarning(),
+								accountChecker.subscriptionEnded(),
+								accountChecker.trialPeriodCloseToEndFirstWarning(),
+								accountChecker.trialPeriodCloseToEndLastWarning(),
+								accountChecker.trialEnded()
+							]);
+							let endTime = new Date();
+							writeStream.write(
+								JSON.stringify({
+									...results,
+									...{starTime, endTime}
+								}) + "\n",
+								() => {
+									logger.info("Account checker task done");
+								}
+							);
+							return results;
+						},
+						"options": {
+							"scheduled": true,
+							"timezone": "America/Sao_Paulo"
+						}
 					}
-				}]
+				]
 			);
 			require("./server/routes/index")(app, queueConsumer);
 			logger.info("MongoDB and RabbitMQ connected successfully");

@@ -107,6 +107,21 @@
 				);
 			});
 		},
+		"bulkInsert": function (collection, docs = [], db = cachedDb) {
+			return new Promise((resolve, reject) => {
+				if (!db || !collection || !docs) {
+					reject(createError(400, "Invalid params"));
+				}
+				let base = db.collection(collection);
+				base.bulkWrite(
+					docs,
+					null,
+					(err, data) => {
+						return err ? reject(err) : resolve(data);
+					}
+				);
+			});
+		},
 		"updateOne": function (collection, query, doc, upsert = false, db = cachedDb) {
 			return new Promise((resolve, reject) => {
 				if (!db || !query || !collection || !doc) {
@@ -122,7 +137,7 @@
 						"upsert": upsert
 					},
 					(err, data) => {
-						return err ? reject(err) : resolve(data.insertedId || data);
+						return err ? reject(err) : resolve(data.insertedId || `Doc ${query._id} updated` || data);
 					}
 				);
 			});
