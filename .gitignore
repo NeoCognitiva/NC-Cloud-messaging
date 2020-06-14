@@ -2,6 +2,9 @@
 ### Node template
 # Logs
 *.log
+!dump.log
+!monthly_dump.log
+!weekly_dump.log
 !/root/error_logs/.gitkeep
 npm-debug.log*
 yarn-debug.log*
