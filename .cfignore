@@ -65,3 +65,6 @@ typings/
 .env
 
 
+!dump.log
+!monthly_dump.log
+!weekly_dump.log
