@@ -4,11 +4,9 @@
 	 * Admin Users helper
 	 * @module adminUsers
 	 * */
-	const createError = require("http-errors");
 	const RECEIPTS_COLLECTION_NAME = "receipts";
 	const RECEIPTS_QUEUE_TOPIC = process.env.RECEIPTS_QUEUE_TOPIC;
 	const Receipt = require("../model/Receipt");
-	let processedReceiptsAmount = 0;
 
 	module.exports = function (mongoDB, logger, queue) {
 		if (!mongoDB || !logger) {

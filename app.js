@@ -15,6 +15,8 @@
 	const app = express();
 	const path = require("path");
 	const LOGS_DUMP_FILE_PATH = path.join("root", "mail_logs", "dump.log");
+	const WEEKLY_LOGS_DUMP_FILE_PATH = path.join("root", "mail_logs", "weekly_dump.log");
+	const MONTHLY_LOGS_DUMP_FILE_PATH = path.join("root", "mail_logs", "monthly_dump.log");
 	let server;
 	if (process.env.LOCAL_HTTPS) {
 		server = require("https").createServer({
@@ -42,7 +44,9 @@
 	const mailer = process.logger = require("./server/helpers/mailer")(mongoDB, queueConsumer);
 	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
 	const conversationAnalytics = require("./server/helpers/conversationAnalytics")(mongoDB, logger, queueConsumer);
-	const accountChecker = require("./server/helpers/accountChecker")(mongoDB, mailer);
+	const accountChecker = require("./server/helpers/scheduled/accountChecker")(mongoDB, mailer);
+	const weeklyReport = require("./server/helpers/scheduled/weeklyReport")(mongoDB, mailer, conversationAnalytics);
+	const monthlyReport = require("./server/helpers/scheduled/monthlyReport")(mongoDB, mailer, conversationAnalytics);
 	const tasker = require("./server/tasker");
 
 
@@ -61,6 +65,7 @@
 			"httpOnly": true
 		}
 	}));
+
 
 	app.engine("html", engines.ejs);
 	app.set("view engine", "ejs");
@@ -93,6 +98,7 @@
 				logger.initQueueListener(),
 				mailer.initQueueListener()
 			]);
+
 			tasker.init(
 				[
 					{
@@ -119,9 +125,67 @@
 								JSON.stringify({
 									...results,
 									...{starTime, endTime}
-								}) + "\n",
+								}) + ",\n",
 								() => {
 									logger.info("Account checker task done");
+								}
+							);
+							return results;
+						},
+						"options": {
+							"scheduled": true,
+							"timezone": "America/Sao_Paulo"
+						}
+					},
+					{
+						"expression": weeklyReport.cronScheduleString,
+						"handler": async () => {
+							let writeStream = fs.createWriteStream(
+								WEEKLY_LOGS_DUMP_FILE_PATH,
+								{"flags": "a"}
+							);
+							let starTime = new Date();
+
+							let results = await Promise.all([
+								weeklyReport.weeklyReport()
+							]);
+							let endTime = new Date();
+							writeStream.write(
+								JSON.stringify({
+									...results,
+									...{starTime, endTime}
+								}) + ",\n",
+								() => {
+									logger.info("Weekly report task done");
+								}
+							);
+							return results;
+						},
+						"options": {
+							"scheduled": true,
+							"timezone": "America/Sao_Paulo"
+						}
+					},
+					{
+						"expression": monthlyReport.cronScheduleString,
+						"handler": async () => {
+							let writeStream = fs.createWriteStream(
+								MONTHLY_LOGS_DUMP_FILE_PATH,
+								{"flags": "a"}
+							);
+							let starTime = new Date();
+
+							let results = await Promise.all([
+								monthlyReport.monthlyReport()
+							]);
+							let endTime = new Date();
+							writeStream.write(
+								JSON.stringify({
+									...results,
+									...{starTime, endTime}
+								}) + ",\n",
+								() => {
+									logger.info("Monthly report task done");
 								}
 							);
 							return results;
@@ -136,7 +200,9 @@
 			require("./server/routes/index")(app, queueConsumer);
 			logger.info("MongoDB and RabbitMQ connected successfully");
 			logger.info(`API server running at port ${appPort}`);
-			logger.info("Automation to handle customer alerts will run every day at 01:00 AM America/Sao_Paulo");
+			logger.info("Automation to handle customer alerts will run every day at 05:00 AM America/Sao_Paulo");
+			logger.info("Automation to handle weekly custom reports will run every week on Mondays at 05:00 AM America/Sao_Paulo");
+			logger.info("Automation to handle monthly custom reports will run every month on the 1st at 05:00 AM America/Sao_Paulo");
 
 		} catch (err) {
 			logger.info({

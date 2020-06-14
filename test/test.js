@@ -9,6 +9,7 @@
 	const mongoDB = require("../server/helpers/mongo");
 	const logger = require("../server/helpers/logger");
 	const mailer = require("../server/helpers/mailer")(mongoDB, null);
+	const conversationAnalytics = require("../server/helpers/conversationAnalytics")(mongoDB, logger, null);
 	process.log = require("winston");
 
 	describe("App instantiation", function () {
@@ -17,6 +18,8 @@
 				mongoDB.connect()
 			]).then(() => {
 				require("./server/helpers/accountChecker-test")(mongoDB, mailer);
+				require("./server/helpers/weeklyReport-test")(mongoDB, mailer, conversationAnalytics);
+				require("./server/helpers/monthlyReport-test")(mongoDB, mailer, conversationAnalytics);
 
 				return done();
 			}).catch((err) => {

@@ -2,8 +2,7 @@
 	"use strict";
 
 	const ACCOUNT_STATUS_COLLECTION_NAME = "account_status";
-	const plans = require("../../root/default_account_plans.json");
-
+	const plans = require("../../../root/default_account_plans.json");
 
 	/**
 	 * This module will provide methods to gather accounts information and emit notifications based on pre-defined
@@ -20,6 +19,7 @@
 			 * Define the routine execution
 			 * @see {@link https://en.wikipedia.org/wiki/Cron|Cron definition}
 			 * @see {@link https://crontab.guru/|Cron job string builder}
+			 * Run every day at 05:00 AM Sao Paulo time
 			 * @constant
 			 * @type {string}
 			 */

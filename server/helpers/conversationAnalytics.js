@@ -1,10 +1,10 @@
 (function () {
 	"use strict";
 	/**
-	 * Admin Users helper
-	 * @module adminUsers
+	 * Conversation Analytics helper
+	 * @module conversationAnalytics
 	 * */
-	const createError = require("http-errors");
+	const moment = require("moment");
 	const CONVERSATION_ANALYTICS_COLLECTION = "conversation_analytics";
 	const CONVERSATION_ANALYTICS_ENGAGE_TOPIC = process.env.CONVERSATION_ANALYTICS_ENGAGE_TOPIC;
 	const CONVERSATION_ANALYTICS_INCREMENT_TOPIC = process.env.CONVERSATION_ANALYTICS_INCREMENT_TOPIC;
@@ -99,6 +99,74 @@
 				return true;
 			},
 
+			"buildAnalyticsQuery": function (startDate, endDate) {
+				let queryObject =  {
+					"date": {}
+				};
+
+				if (startDate) {
+					let parsedStartDate = new Date(startDate);
+					if (!parsedStartDate || (parsedStartDate || "").toString() === "Invalid Date") {
+						throw new Error("Invalid start date provided");
+					}
+					queryObject.date.$gte = moment(parsedStartDate).startOf("day").toDate();
+				}
+				if (endDate) {
+					let parsedEndDate = new Date(endDate);
+					if (!parsedEndDate || (parsedEndDate || "").toString() === "Invalid Date") {
+						throw new Error("Invalid end date provided");
+					}
+					queryObject.date.$lte = moment(parsedEndDate).endOf("day").toDate();
+				}
+
+				if (!startDate && !endDate) {
+					delete queryObject.date;
+				}
+				return queryObject;
+			},
+
+			"fetchConversationAnalytics": function (startDate, endDate) {
+				return new Promise((resolve, reject) => {
+					mongoDB.aggregate(CONVERSATION_ANALYTICS_COLLECTION,
+						[{
+							"$match": this.buildAnalyticsQuery(startDate, endDate)
+						}, {
+							"$group": {
+								"_id": "$company",
+								"averageConversationTimeInMS": {
+									"$avg": {
+										"$subtract": [
+											"$lastUpdatedAt", "$date"
+										]
+									}
+								},
+								"conversationWithoutInteractions": {
+									"$sum": {
+										"$cond":  [
+											{ "$gt": [ "$lastUpdatedAt", null ] },
+											0,
+											1
+										]
+									}
+								},
+								"conversationCount": {
+									"$sum": 1
+								},
+								"interactionCount": {
+									"$sum": "$interactionCount"
+								},
+								"failedInteractionCount": {
+									"$sum": "$failedInteractionCount"
+								},
+								"feedbackRequestCount": {
+									"$sum": "$feedbackRequestCount"
+								}
+							}
+						}]
+					).then(result => resolve(result)
+					).catch(err => reject(err));
+				});
+			},
 
 			async initQueueListener() {
 				this.queueController = await queue.listenQueueTopic(

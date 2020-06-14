@@ -37,6 +37,7 @@
 		"http-errors": "^1.7.3",
 		"ibm-cloud-env": "^0",
 		"moment": "^2.26.0",
+		"moment-timezone": "^0.5.31",
 		"mongodb": "^3.5.3",
 		"morgan": "^1.9.1",
 		"node-cron": "^2.0.3",

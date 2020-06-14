@@ -30,12 +30,18 @@
 					...stationData
 				};
 
-				// let x = await post(
-				// 	RD_STATION_ENDPOINT,
-				// 	requestBody
-				// );
-				// console.log(x)
-				console.log(requestBody)
+				if (process.env.ENABLE_RD_STATION === "yes") {
+					await post(
+						RD_STATION_ENDPOINT,
+						requestBody
+					);
+				} else {
+					console.log("Skipping RD station call since it is turned off");
+					console.log(new Date());
+				}
+
+
+
 				return requestBody
 			},
 

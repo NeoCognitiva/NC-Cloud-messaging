@@ -5,7 +5,7 @@ const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 chai.should();
-const accountChecker = require("../../../server/helpers/accountChecker");
+const accountChecker = require("../../../server/helpers/scheduled/accountChecker");
 const ACCOUNT_STATUS_COLLECTION = "account_status";
 const mock = require("../../mocks/accountStatus");
 
@@ -84,6 +84,10 @@ module.exports = function (mongoDB, mailer) {
 
 			it("should expose a trialEnded method", function() {
 				assert.strictEqual(typeof checker.trialEnded, "function");
+			});
+
+			describe("cronScheduleString must represent a daily task at 05 AM", function () {
+				assert.strictEqual(checker.cronScheduleString, "0 1 * * *");
 			});
 
 			describe("lowInteractionQuota method", () => {
