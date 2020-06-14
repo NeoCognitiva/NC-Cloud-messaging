@@ -1,0 +1,28 @@
+[{
+	"accountStatus": "trial",
+	"defaultValues": {
+		"interactionQuota": 500,
+		"dialogNodeCreationQuota": 30,
+		"entityCreationQuota": 10,
+		"intentCreationQuota": 10,
+		"workspaceCreationQuota": 1
+	}
+}, {
+	"accountStatus": "pro",
+	"defaultValues": {
+		"interactionQuota": 1000,
+		"dialogNodeCreationQuota": 50,
+		"entityCreationQuota": 10,
+		"intentCreationQuota": 10,
+		"workspaceCreationQuota": 1
+	}
+}, {
+	"accountStatus": "special",
+	"defaultValues": {
+		"interactionQuota": 50000,
+		"dialogNodeCreationQuota": 100,
+		"entityCreationQuota": 100,
+		"intentCreationQuota": 100,
+		"workspaceCreationQuota": 5
+	}
+}]

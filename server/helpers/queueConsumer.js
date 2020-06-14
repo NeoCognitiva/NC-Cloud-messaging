@@ -31,6 +31,11 @@
 						}
 					});
 
+					amqpConn.on("disconnect", (err) => {
+						console.log("MQ channel disconnected");
+						console.log(err);
+					});
+
 					amqpConn.on("connect", () => {
 						console.log("MQ channel connected");
 						onlineSince = new Date();
