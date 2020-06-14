@@ -489,8 +489,8 @@
 			/**
 			 * Query the accounts status and create a notification request if the subscription period is near
 			 * the pre-defined date.
-			 * renovationDate: -> higher than {today}, lower than next {five} days
-			 * subscriptionEndNotified: -> false
+			 * trialEndDate: -> higher than {today}, lower than next {five} days
+			 * subscriptionAboutToEndNotified: -> false
 			 * accountStatus: == "trial"
 			 *
 			 * @async
@@ -573,7 +573,7 @@
 			 * the current date and has been notified before.
 			 *
 			 * This is valid for both trial and regular accounts.
-			 * renovationDate: -> higher than {today} AND lower than next {two} days
+			 * trialEndDate: -> higher than {today} AND lower than next {two} days
 			 * subscriptionAboutToEndNotified: -> true
 			 * subscriptionAboutToEndLastWarningNotified: -> false
 			 * accountStatus: == "trial"
