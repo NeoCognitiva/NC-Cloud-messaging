@@ -16,6 +16,7 @@ if ! cf app "$CF_APP"; then
   cf set-env "$CF_APP" RABBITMQ_URL "$RABBITMQ_URL"
   cf set-env "$CF_APP" RD_STATION_TOKEN "$RD_STATION_TOKEN"
   cf set-env "$CF_APP" ENABLE_RD_STATION "$ENABLE_RD_STATION"
+  cf set-env "$CF_APP" DEBUG "app:*"
 
   cf start "$CF_APP"
 else
@@ -47,6 +48,8 @@ else
   cf set-env "$CF_APP" RABBITMQ_URL "$RABBITMQ_URL"
   cf set-env "$CF_APP" RD_STATION_TOKEN "$RD_STATION_TOKEN"
   cf set-env "$CF_APP" ENABLE_RD_STATION "$ENABLE_RD_STATION"
+  cf set-env "$CF_APP" DEBUG "app:*"
+
   cf start "$CF_APP"
   cf delete "$OLD_CF_APP" -f
 fi

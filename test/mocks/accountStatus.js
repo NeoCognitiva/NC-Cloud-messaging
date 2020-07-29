@@ -115,7 +115,7 @@ module.exports = {
 						now,
 						new Date(
 							new Date().setDate(
-								now.getDate() + 2
+								now.getDate() + 1
 							)
 						)
 					),
