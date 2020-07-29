@@ -64,7 +64,7 @@
 			async handleEmailArrival(message = {}) {
 				let parsedMessage = JSON.parse((message.content).toString());
 				try {
-					await this.postStationData("nc_password_reset_request", parsedMessage);
+					await this.postStationData(parsedMessage.mailType || parsedMessage.conversionIdentifier, parsedMessage);
 					queue.ackQueueMessage(message);
 					console.log("Email sent and message acknowledged");
 				} catch (e) {
