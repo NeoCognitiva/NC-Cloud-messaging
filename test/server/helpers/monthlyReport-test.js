@@ -9,12 +9,12 @@ const monthlyReport = require("../../../server/helpers/scheduled/monthlyReport")
 const CONVERSATION_ANALYTICS_COLLECTION = "conversation_analytics";
 // const mock = require("../../mocks/accountStatus");
 
-module.exports = function (mongoDB, mailer, conversationAnalytics) {
+module.exports = function (mongoDB, mailer, conversationAnalytics, accounts) {
 
 	describe("Monthly report module", () => {
 
 		context("Valid instantiation", () => {
-			let monthlyReportInstance = monthlyReport(mongoDB, mailer, conversationAnalytics);
+			let monthlyReportInstance = monthlyReport(mongoDB, mailer, conversationAnalytics, accounts);
 			before((done) => {
 				process.log.info("Cleaning up Account status tests DB and loading default before start");
 				Promise.all([

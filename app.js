@@ -1,7 +1,7 @@
 /**
  * Created by danielabrao on 6/9/17.
  */
-(function () {
+(async  function () {
 	"use strict";
 	require("dotenv").config({
 		"silent": true
@@ -44,10 +44,13 @@
 	const mailer = process.logger = require("./server/helpers/mailer")(mongoDB, queueConsumer);
 	const receipts = require("./server/helpers/receipts")(mongoDB, logger, queueConsumer);
 	const conversationAnalytics = require("./server/helpers/conversationAnalytics")(mongoDB, logger, queueConsumer);
-	const accountChecker = require("./server/helpers/scheduled/accountChecker")(mongoDB, mailer);
-	const weeklyReport = require("./server/helpers/scheduled/weeklyReport")(mongoDB, mailer, conversationAnalytics);
-	const monthlyReport = require("./server/helpers/scheduled/monthlyReport")(mongoDB, mailer, conversationAnalytics);
+	const accounts = require("./server/helpers/accounts")(mongoDB);
+	const accountChecker = require("./server/helpers/scheduled/accountChecker")(mongoDB, mailer, accounts);
+	const weeklyReport = require("./server/helpers/scheduled/weeklyReport")(mongoDB, mailer, conversationAnalytics, accounts);
+	const monthlyReport = require("./server/helpers/scheduled/monthlyReport")(mongoDB, mailer, conversationAnalytics, accounts);
 	const tasker = require("./server/tasker");
+
+
 
 
 	app.use(helmet());

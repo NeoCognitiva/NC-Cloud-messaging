@@ -9,8 +9,8 @@
 	 * thresholds.
 	 * @module accountChecker
 	 * */
-	module.exports = function (mongoDB, mailer) {
-		if (!mongoDB || !mailer) {
+	module.exports = function (mongoDB, mailer, accounts) {
+		if (!mongoDB || !mailer || !accounts) {
 			throw new Error("Can not instantiate accountChecker helper without mongoDB object")
 		}
 		return {
@@ -78,12 +78,17 @@
 								);
 
 								//For each occurrence found send an email request with the original plan value and client data.
+								// REVIEWED
 								let emailResults = await Promise.all(
 									planOccurrences.map(
 										async occurrence => await mailer.postStationData(
 											TASK_ID,
 											{
+												"email": await accounts.getCompanyEmail(occurrence.clientName),
 												"interactionPlanQuota": plan.defaultValues.interactionQuota,
+												"client_name": occurrence.clientName,
+												"account_type": plan.accountStatus,
+												"interaction_quota_remaining": occurrence.interactionQuota,
 												...occurrence
 											}
 										)
@@ -179,12 +184,17 @@
 								);
 
 								//For each occurrence found send an email request with the original plan value and client data.
+								//REVIEWED
 								let emailResults = await Promise.all(
 									planOccurrences.map(
 										async occurrence => await mailer.postStationData(
 											TASK_ID,
 											{
+												"email": await accounts.getCompanyEmail(occurrence.clientName),
 												"interactionPlanQuota": plan.defaultValues.interactionQuota,
+												"client_name": occurrence.clientName,
+												"account_type": plan.accountStatus,
+												"interaction_quota_remaining": occurrence.interactionQuota,
 												...occurrence
 											}
 										)
@@ -270,9 +280,15 @@
 
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+
+							//reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -363,9 +379,14 @@
 					//For each occurrence found send an email request with the original plan value and client data.
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+							// reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -448,9 +469,14 @@
 
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+							//reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -515,7 +541,7 @@
 									"$gte": now,
 									"$lte": new Date(
 										new Date().setDate(
-											now.getDate() + 2
+											now.getDate() + 5
 										)
 									)
 								}
@@ -530,9 +556,14 @@
 
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+							//reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -618,9 +649,14 @@
 
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+							// reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -701,9 +737,14 @@
 					//For each occurrence found send an email request with the original plan value and client data.
 					let emailResults = await Promise.all(
 						accountOccurrences.map(
+							// reviewed
 							async occurrence => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(occurrence.clientName),
+									"client_name": occurrence.clientName,
+									"account_type": occurrence.accountStatus,
+									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)

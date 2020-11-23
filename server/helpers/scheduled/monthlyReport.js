@@ -8,7 +8,7 @@
 	 * This module will provide methods to build custom reports on a monthly basis
 	 * @module monthlyReports
 	 * */
-	module.exports = function (mongoDB, mailer, conversationAnalytics) {
+	module.exports = function (mongoDB, mailer, conversationAnalytics, accounts) {
 		if (!mongoDB || !mailer) {
 			throw new Error("Can not instantiate accountChecker helper without mongoDB object")
 		}
@@ -48,6 +48,18 @@
 							async customer => await mailer.postStationData(
 								TASK_ID,
 								{
+									"email": await accounts.getCompanyEmail(customer.id || customer._id),
+									"client_name": customer.id || customer._id,
+									"average_conversation_time": customer.averageConversationTimeInMS,
+									"of_conversation_without_interactions": customer.conversationWithoutInteractions,
+									"total_of_conversations": customer.conversationCount,
+									"total_of_interactions": customer.interactionCount,
+									"of_interactions_that_failed": customer.failedInteractionCount,
+									"of_feedback_requested": customer.feedbackRequestCount,
+									...{
+										startDate,
+										endDate
+									},
 									...customer
 								}
 							)

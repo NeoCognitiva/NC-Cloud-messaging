@@ -9,12 +9,12 @@ const weeklyReport = require("../../../server/helpers/scheduled/weeklyReport");
 const CONVERSATION_ANALYTICS_COLLECTION = "conversation_analytics";
 // const mock = require("../../mocks/accountStatus");
 
-module.exports = function (mongoDB, mailer, conversationAnalytics) {
+module.exports = function (mongoDB, mailer, conversationAnalytics, accounts) {
 
 	describe("Weekly report module", () => {
 
 		context("Valid instantiation", () => {
-			let weeklyReportInstance = weeklyReport(mongoDB, mailer, conversationAnalytics);
+			let weeklyReportInstance = weeklyReport(mongoDB, mailer, conversationAnalytics, accounts);
 			before((done) => {
 				process.log.info("Cleaning up Account status tests DB and loading default before start");
 				Promise.all([
