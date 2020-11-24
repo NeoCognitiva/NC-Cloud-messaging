@@ -60,7 +60,7 @@
 			},
 
 			async ackQueueMessage(message, referenceObject = null) {
-				let parsedData = JSON.parse(referenceObject);
+				let parsedData = JSON.parse(referenceObject) || {};
 				await amqpChannel.ack(message);
 
 				if (referenceObject) {
@@ -70,7 +70,6 @@
 						}
 					});
 				}
-
 
 				if (parsedData.type) {
 					if (messagesByTopic[parsedData.type] >= 0) {

@@ -8,6 +8,7 @@
 	const bent = require("bent");
 	const RD_STATION_TOKEN = process.env.RD_STATION_TOKEN;
 	const debug = require("debug")("app:mailer");
+	const supportDebugLog = require("debug")("app:debug");
 	const RD_STATION_ENDPOINT=`https://api.rd.services/platform/conversions?api_key=${RD_STATION_TOKEN}`;
 
 	module.exports = function (mongoDB, queue) {
@@ -41,6 +42,9 @@
 
 
 				if (process.env.ENABLE_RD_STATION === "yes") {
+					supportDebugLog("DEBUGGER")
+					supportDebugLog(RD_STATION_ENDPOINT)
+					supportDebugLog(requestBody);
 					try {
 						await post(
 							RD_STATION_ENDPOINT,
