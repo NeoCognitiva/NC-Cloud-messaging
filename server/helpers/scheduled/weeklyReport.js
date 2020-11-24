@@ -35,12 +35,12 @@
 			 */
 			async weeklyReport() {
 				const TASK_ID = "weekly_report";
-				let startDate = moment().subtract(3, "days").startOf("week");
-				let endDate = moment().subtract(3, "days").endOf("week");
+				let cf_startDate = moment().subtract(3, "days").startOf("week");
+				let cf_endDate = moment().subtract(3, "days").endOf("week");
 				try {
 					let customers = await conversationAnalytics.fetchConversationAnalytics(
-						startDate,
-						endDate
+						cf_startDate,
+						cf_endDate
 					);
 
 					let emailResults = await Promise.all(
@@ -49,16 +49,16 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(customer.id || customer._id),
-									"client_name": customer.id || customer._id,
-									"average_conversation_time": customer.averageConversationTimeInMS,
-									"of_conversation_without_interactions": customer.conversationWithoutInteractions,
-									"total_of_conversations": customer.conversationCount,
-									"total_of_interactions": customer.interactionCount,
-									"of_interactions_that_failed": customer.failedInteractionCount,
-									"of_feedback_requested": customer.feedbackRequestCount,
+									"name": customer.id || customer._id,
+									"cf_average_conversation_time": customer.averageConversationTimeInMS,
+									"cf_of_conversation_without_interactions": customer.conversationWithoutInteractions,
+									"cf_total_of_conversations": customer.conversationCount,
+									"cf_total_of_interactions": customer.interactionCount,
+									"cf_of_interactions_that_failed": customer.failedInteractionCount,
+									"cf_of_feedback_requested": customer.feedbackRequestCount,
 									...{
-										startDate,
-										endDate
+										cf_startDate,
+										cf_endDate
 									},
 									...customer
 								}
@@ -70,8 +70,8 @@
 						"task_id": TASK_ID,
 						"customers": customers.length,
 						"emailOperations": emailResults,
-						"startDate": startDate,
-						"endDate": endDate
+						"startDate": cf_startDate,
+						"endDate": cf_endDate
 					};
 
 				} catch (e) {

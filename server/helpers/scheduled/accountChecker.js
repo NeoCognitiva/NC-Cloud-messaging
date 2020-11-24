@@ -86,9 +86,9 @@
 											{
 												"email": await accounts.getCompanyEmail(occurrence.clientName),
 												"interactionPlanQuota": plan.defaultValues.interactionQuota,
-												"client_name": occurrence.clientName,
-												"account_type": plan.accountStatus,
-												"interaction_quota_remaining": occurrence.interactionQuota,
+												"name": occurrence.clientName,
+												"cf_account_type": plan.accountStatus,
+												"cf_interaction_quota_remaining": occurrence.interactionQuota,
 												...occurrence
 											}
 										)
@@ -191,10 +191,10 @@
 											TASK_ID,
 											{
 												"email": await accounts.getCompanyEmail(occurrence.clientName),
-												"interactionPlanQuota": plan.defaultValues.interactionQuota,
-												"client_name": occurrence.clientName,
-												"account_type": plan.accountStatus,
-												"interaction_quota_remaining": occurrence.interactionQuota,
+												"cf_interactionPlanQuota": plan.defaultValues.interactionQuota,
+												"name": occurrence.clientName,
+												"cf_account_type": plan.accountStatus,
+												"cf_interaction_quota_remaining": occurrence.interactionQuota,
 												...occurrence
 											}
 										)
@@ -286,9 +286,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"name": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -384,9 +384,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"name": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -474,9 +474,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"name": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -561,9 +561,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"name": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -654,9 +654,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"nname": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
@@ -742,9 +742,9 @@
 								TASK_ID,
 								{
 									"email": await accounts.getCompanyEmail(occurrence.clientName),
-									"client_name": occurrence.clientName,
-									"account_type": occurrence.accountStatus,
-									"renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
+									"name": occurrence.clientName,
+									"cf_account_type": occurrence.accountStatus,
+									"cf_renovation_date": occurrence.renovationDate || occurrence.trialEndDate,
 									...occurrence
 								}
 							)
