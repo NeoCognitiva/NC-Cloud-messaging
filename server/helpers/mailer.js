@@ -45,6 +45,7 @@
 					supportDebugLog("DEBUGGER")
 					supportDebugLog(RD_STATION_ENDPOINT)
 					supportDebugLog(requestBody);
+					supportDebugLog(JSON.stringify(requestBody));
 					try {
 						await post(
 							RD_STATION_ENDPOINT,
