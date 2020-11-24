@@ -32,11 +32,9 @@
 					"payload": {
 						"conversion_identifier": conversionIdentifier,
 						"email": stationData.to || stationData.email,
-						"custom_fields": {
-							[conversionIdentifier]: "ativo",
-							"user_email": stationData.to || stationData.email,
-							...stationData
-						}
+						[conversionIdentifier]: "ativo",
+						"user_email": stationData.to || stationData.email,
+						...stationData
 					}
 				};
 
